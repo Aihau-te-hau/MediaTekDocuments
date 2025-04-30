@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MediaTekDocuments.model;
 using MediaTekDocuments.dal;
+using System;
 
 namespace MediaTekDocuments.controller
 {
@@ -95,6 +96,15 @@ namespace MediaTekDocuments.controller
         public bool CreerExemplaire(Exemplaire exemplaire)
         {
             return access.CreerExemplaire(exemplaire);
+        }
+
+        /// <summary>
+        /// getter sur les étapes de la commande
+        /// </summary>
+        /// <returns>Liste d'objets Etapes</returns>
+        public List<Etape> GetAllEtapes()
+        {
+            return access.GetAllEtapes();
         }
     }
 }

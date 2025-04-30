@@ -101,6 +101,16 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
+        /// Retourne toutes les catégories d'étapes à partir de la BDD
+        /// </summary>
+        /// <returns></returns>
+        public List<Etape> GetAllEtapes()
+        {
+            IEnumerable<Etape> lesEtapes = TraitementRecup<Etape>(GET, "etape", null);
+            return new List<Etape>(lesEtapes);
+        }
+
+        /// <summary>
         /// Retourne toutes les livres à partir de la BDD
         /// </summary>
         /// <returns>Liste d'objets Livre</returns>

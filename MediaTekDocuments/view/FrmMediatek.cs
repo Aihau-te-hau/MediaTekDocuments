@@ -45,6 +45,22 @@ namespace MediaTekDocuments.view
                 cbx.SelectedIndex = -1;
             }
         }
+
+        /// <summary>
+        /// Rempli le combo etape
+        /// </summary>
+        /// <param name="lesEtapes"></param>
+        /// <param name="bdg"></param>
+        /// <param name="cbx"></param>
+        public void RemplirComboEtape(List<Etape> lesEtapes, BindingSource bdg, ComboBox cbx)
+        {
+            bdg.DataSource = lesEtapes;
+            cbx.DataSource = bdg;
+            if (cbx.Items.Count > 0)
+            {
+                cbx.SelectedItem = -1;
+            }
+        }
         #endregion
 
         #region Onglet Livres
@@ -1237,6 +1253,139 @@ namespace MediaTekDocuments.view
             {
                 pcbReceptionExemplaireRevueImage.Image = null;
             }
+        }
+
+        #endregion
+
+        #region Onglet SuiviCommandes
+        private readonly BindingSource bdgEtapes = new BindingSource();
+        private List<Etape> lesEtapes = new List<Etape>();
+
+        /// <summary>
+        /// Ouverture de l'onglet CommandesLivres :
+        /// appel des méthodes pour remplir le datagrid des Commandeslivres et du combo (étapes)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TabCommandesLivres_Enter(object sender, EventArgs e)
+        {
+            lesLivres = controller.GetAllLivres();
+            RemplirComboEtape(controller.GetAllEtapes(), bdgEtapes, cbxCommandesEtapes);
+            RemplirCommandesListeComplete();
+        }
+
+        /// <summary>
+        /// Remplit le dategrid avec la liste reçue en paramètre
+        /// </summary>
+        /// <param name="commandes">liste des commandes</param>
+        private void RemplirCommandesListe(List<Commandes> lesCommandes)
+        {
+            bdgCommandesListe.DataSource = lesCommandes;
+            dgvCommandesListe.DataSource = bdgCommandesListe;
+            dgvCommandesListe.Columns["dateCommande"].Visible = false;
+            dgvCommandesListe.Columns["montantCommande"].Visible = false;
+            dgvCommandesListe.Columns["nbExemplaire"].Visible = false;
+            dgvCommandesListe.Columns["etape"].Visible = false;
+            dgvCommandesListe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dgvCommandesListe.Columns["id"].DisplayIndex = 0;
+            dgvCommandesListe.Columns["titre"].DisplayIndex = 1;
+        }
+
+        /// <summary>
+        /// Recherche et affichage du livre dont on a saisi le numéro.
+        /// Si non trouvé, affichage d'un MessageBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnLivresCommandesRecherche_Click(object sender, EventArgs e)
+        {
+            if (!txbLivresCommandesRecherche.Text.Equals(""))
+            {
+                txbLivresTitreRecherche.Text = "";
+                Livre livre = lesLivres.Find(x => x.Id.Equals(txbLivresCommandesRecherche.Text));
+                if (livre != null)
+                {
+                    List<Livre> livres = new List<Livre>() { livre };
+                    RemplirLivresListe(livres);
+                }
+                else
+                {
+                    MessageBox.Show("numéro introuvable");
+                    RemplirLivresListeComplete();
+                }
+            }
+            else
+            {
+                RemplirLivresListeComplete();
+            }
+        }
+
+        /// <summary>
+        /// Affichage des informations du livre sélectionné
+        /// </summary>
+        /// <param name="livre">le livre</param>
+        private void AfficheLivresInfos2(Livre livre)
+        {
+            txbLivresAuteur2.Text = livre.Auteur;
+            txbLivresCollection2.Text = livre.Collection;
+            txbLivresImage2.Text = livre.Image;
+            txbLivresIsbn2.Text = livre.Isbn;
+            txbLivresNumero2.Text = livre.Id;
+            txbLivresGenre2.Text = livre.Genre;
+            txbLivresPublic2.Text = livre.Public;
+            txbLivresRayon2.Text = livre.Rayon;
+            txbLivresTitre2.Text = livre.Titre;
+            string image = livre.Image;
+            try
+            {
+                pcbLivresImage2.Image = Image.FromFile(image);
+            }
+            catch
+            {
+                pcbLivresImage2.Image = null;
+            }
+        }
+
+        /// <summary>
+        /// Affichage de la liste complète des commandes
+        /// </summary>
+        private void RemplirCommandesListeComplete()
+        {
+            RemplirCommandesListe(lesCommandes);
+        }
+
+        /// <summary>
+        /// Tri sur les colonnes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DgvCommandesListe_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            VideLivresZones();
+            string titreColonne = dgvLivresListe.Columns[e.ColumnIndex].HeaderText;
+            List<Commandes> sortedList = new List<Commandes>();
+            switch (titreColonne)
+            {
+                case "Id":
+                    sortedList = lesCommandes.OrderBy(o => o.Id).ToList();
+                    break;
+                case "Titre":
+                    sortedList = lesCommandes.OrderBy(o => o.Titre).ToList();
+                    break;
+                case "dateCommande":
+                    sortedList = lesCommandes.OrderBy(o => o.Collection).ToList();
+                    break;
+                case "montantCommande":
+                    sortedList = lesCommandes.OrderBy(o => o.Auteur).ToList();
+                    break;
+                case "nbExemplaire":
+                    sortedList = lesCommandes.OrderBy(o => o.Genre).ToList();
+                    break;
+                case "etape":
+                    sortedList = lesCommandes.OrderBy(o => o.Public).ToList();
+                    break;
+            }
+            RemplirLivresListe(sortedList);
         }
         #endregion
     }
